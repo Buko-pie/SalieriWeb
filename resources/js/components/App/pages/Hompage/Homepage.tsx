@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import { Helmet } from 'react-helmet-async';
 import { easings, useSpring } from 'react-spring';
 // import ShowcaseArt from './ShowcaseArt';
@@ -13,10 +13,16 @@ import {
   WrapperZNdx,
 } from '../../components/Wrappers';
 import * as styl from '../../styles/global-styles';
+import axios from 'axios';
+import { Art, Config } from '../../types'
+
+const _origin = window.location.origin;
 
 export default function HomePage() {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [navStat, setNavStat] = useState(false);
+  const [Arts, setArts] = useState<Art[]>([])
+  const [configs, setConfigs] = useState<Config>()
   const animNav = useSpring({
     translateX: isNavOpen ? 288 : 0,
     zIndex: 999,
@@ -27,6 +33,17 @@ export default function HomePage() {
     },
   });
 
+  useEffect(() => {
+    axios.get(`${_origin}/fetchArts`)
+    .then(res => {
+      setArts(res.data.arts);
+      setConfigs(res.data.configs)
+    })
+    .catch(err =>{
+      console.error(err);
+    })
+  }, [])
+
   const handleOpenEvent = () => {
     setIsNavOpen(!isNavOpen)
     setTimeout(() => {
@@ -36,39 +53,43 @@ export default function HomePage() {
   // TODO: Make states efficient in refactor;
   return (
     <>
-      <WrapperPage>
-        <styl.Flex>
-          <styl.ShadowBox>
-            <Nav />
-          </styl.ShadowBox>
-        </styl.Flex>
-        <styl.Flex>
-          <styl.AnimFlex
-            id="opening"
-            style={animNav}
-          >
-            <NavHid navStat={navStat} />
+      {Arts && Arts.length &&
+        <WrapperPage>
+          <styl.Flex>
             <styl.ShadowBox>
-              <TextScroller />
+              <Nav Arts={Arts}/>
             </styl.ShadowBox>
-            <WrapperZNdx>
-              <div onClick={() => handleOpenEvent()}>
-                <NavBtn />
-              </div>
-            </WrapperZNdx>
-          </styl.AnimFlex>
-        </styl.Flex>
-        <WrapperContent style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          bottom: 0,
-          margin: '0 0 0 8rem',
-          zIndex: 0,
-        }}>
-          <ShowcaseArt />
-        </WrapperContent>
-      </WrapperPage>
+          </styl.Flex>
+          <styl.Flex>
+            <styl.AnimFlex
+              id="opening"
+              style={animNav}
+            >
+              <NavHid navStat={navStat} />
+              <styl.ShadowBox>
+                { configs &&
+                  <TextScroller textscroller={configs.textscroll}/>
+                }
+              </styl.ShadowBox>
+              <WrapperZNdx>
+                <div onClick={() => handleOpenEvent()}>
+                  <NavBtn />
+                </div>
+              </WrapperZNdx>
+            </styl.AnimFlex>
+          </styl.Flex>
+          <WrapperContent style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            margin: '0 0 0 8rem',
+            zIndex: 0,
+          }}>
+              <ShowcaseArt Arts={Arts}/>
+          </WrapperContent>
+        </WrapperPage>
+      }
     </>
   );
 }

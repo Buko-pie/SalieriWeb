@@ -15,3 +15,7 @@ use App\Http\Controllers\Controller;
 */
 
 Route::get('/', [Controller::class, 'home'])->name('home');
+Route::get('/fetchArts', [Controller::class, 'fetchArts'])->name('fetchArts');
+Route::post('/creds', [Controller::class, 'checkCreds'])->name('creds');
+Route::post('/uploadArts', [Controller::class, 'uploadArts'])->name('uploadArts');
+Route::post('/setConfigs', [Controller::class, 'setConfigs'])->name('setConfigs');

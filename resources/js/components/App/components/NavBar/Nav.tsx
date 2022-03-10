@@ -1,11 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Art } from '../../types'
 import styled from 'styled-components';
 import { WrapperNav } from '../Wrappers';
 import { SiTwitter, SiKofi, SiPixiv } from 'react-icons/si';
 import { Flex, Grid, TextVertLR } from '../../styles/global-styles';
-import CryptoJS from 'crypto-js';
+import axios from 'axios'
 import Modal from 'react-modal';
 import Dashboard from '../Dashboard';
+import Logo from '../Logo';
+
+const _origin = window.location.origin;
 
 const FJustifyC = styled(Flex)`
   justify-content: center;
@@ -92,9 +96,11 @@ const InputType = styled.input`
 const customStyles = {
   overlay: {
     zIndex: 9998,
-    backgroundColor: '#484848a1',
+    backgroundColor: '#00000080',
   },
   content: {
+    backgroundColor: '#00000080',
+    color: 'white',
     top: '50%',
     left: '50%',
     right: 'auto',
@@ -105,37 +111,34 @@ const customStyles = {
   },
 };
 
-// const defaultText = process.env.REACT_APP_DEFAULT_TEXT;
-// const sp = process.env.REACT_APP_SP;
-// const pp = process.env.REACT_APP_PP;
-
-// var iv = CryptoJS.enc.Utf8.parse(pp);
-// var decr = CryptoJS.AES.decrypt(defaultText, sp, { iv: iv });
-// decr = decr.toString(CryptoJS.enc.Utf8);
-
-// console.log('decr: ', decr);
-// console.log('process.env: ', process.env);
 
 Modal.setAppElement('#root');
 
-const Nav: React.FC = () => {
+const Nav: React.FC<{Arts: Art[]}> = ({Arts}) => {
   // let subtitle;
   const [isLogoPressed, setIsLogoPressed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null!);
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    console.log('logo change')
     if (isLogoPressed) {
       inputRef.current.blur();
       inputRef.current.value = '';
       inputRef.current.focus();
     }
     if (!isLogoPressed) {
-      if (inputRef.current.value === 'test') {
-        setIsModalOpen(true);
-        console.log('open dashboard');
+      const data = {
+        step: 0,
+        creds: inputRef.current.value
       }
+
+      axios.post(`${_origin}/creds`, data)
+      .then(res => {
+        setIsModalOpen(true);
+      })
+      .catch(err => {
+        console.error(err)
+      })
       inputRef.current.blur();
       inputRef.current.value = '';
     }
@@ -160,7 +163,7 @@ const Nav: React.FC = () => {
           contentLabel="Example Modal"
       >
           <button onClick={() => setIsModalOpen(false)}>X</button>
-        <Dashboard />
+        <Dashboard Arts={Arts}/>
       </Modal>
       <InputType ref={inputRef} type="text" />
       <WrapperNav className="crt inset-shadow">
@@ -171,7 +174,7 @@ const Nav: React.FC = () => {
               onMouseUp={() => setIsLogoPressed(false)}
               style={{display: 'flex', justifyContent: 'center'}}
             >
-              Logo Here
+              <Logo src='./images/logo/logo' size='5rem'/>
             </div>
             <FJustifyC style={{ alignItems: 'end', margin: '0 0 0.5rem 0' }}>
               <NavSocials>

@@ -69,3 +69,9 @@ export const TextVertLR = styled.p`
   transform: rotate(-180deg);
   text-transform: uppercase;
 `;
+
+export const NavOption = styled.button<{ activeIndex: boolean }>`
+  background-color: ${({ activeIndex }) => (activeIndex ? 'white' : 'transparent')};
+  color: ${({ activeIndex }) => (activeIndex ? 'black' : 'white')};
+  border-bottom: ${({ activeIndex }) => activeIndex && '3px solid white'};
+`
