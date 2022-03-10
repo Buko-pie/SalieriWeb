@@ -8,7 +8,7 @@ const Text = styled.p`
   font-weight: 800;
 `;
 
-const TextScroller: React.FC = () => {
+const TextScroller: React.FC<{textscroller: string}> = ({textscroller}) => {
   return (
     <>
       <WrapperTxtScroller>
@@ -19,10 +19,7 @@ const TextScroller: React.FC = () => {
             pauseOnHover={true}
             direction="right"
           >
-            <Text>
-              - TextScroller - TextScroller - TextScroller - TextScroller -
-              TextScroller - TextScroller - TextScroller&nbsp;
-            </Text>
+            <Text>{textscroller}&nbsp;</Text>
           </Marquee>
         </div>
       </WrapperTxtScroller>

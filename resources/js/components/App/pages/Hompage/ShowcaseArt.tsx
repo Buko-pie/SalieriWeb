@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import styled from 'styled-components';
+import Logo from '../../components/Logo';
 import {
   useTransition,
   useSpring,
@@ -9,7 +10,7 @@ import {
   useSpringRef,
   easings
 } from 'react-spring';
-import { usePalette } from 'react-palette'
+import { Art } from '../../types';
 
 const Frame = styled(animated.div)<{ src?: string }>`
   display: flex;
@@ -63,24 +64,13 @@ const bgCont = styled.div`
   margin: auto;
 `
 
-const IMAGES = [
-  "./images/art/art_0.jpg",
-  "./images/art/art_1.jpg",
-  "./images/art/art_2.jpg"
-];
 
-export default function ShowcaseArt(){
+const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [delayC, setDelay] = useState(false);
   const [delayMS, setDelayMS] = useState(500);
   const springApi = useSpringRef();
-
-  const Arts = IMAGES.map(image => {
-    const { data, loading, error } = usePalette(image)
-    return ({img: image, color: data.vibrant})
-  })
-
-  const [bgColor, setBgColor] = useState<any>(Arts[0].color)
+  const [bgColor, setBgColor] = useState(Arts[0].color)
   const center = {
     display: 'flex',
     inset: '0 0 0 0',
@@ -103,9 +93,9 @@ export default function ShowcaseArt(){
     },
     onRest: (_springs, _ctrl, item) => {
       if (activeIndex === item) {
-        setActiveIndex(activeIndex === IMAGES.length - 1 ? 0 : activeIndex + 1);
+        setActiveIndex(activeIndex === Arts.length - 1 ? 0 : activeIndex + 1);
       }
-      const nextindex = activeIndex === IMAGES.length - 1 ? 0 : activeIndex + 1
+      const nextindex = activeIndex === Arts.length - 1 ? 0 : activeIndex + 1
       if(!delayC){
         setBgColor(Arts[nextindex].color)
       }
@@ -117,9 +107,6 @@ export default function ShowcaseArt(){
     delay: delayMS,
     ref: springApi
   });
-
-
-  const [show, setShow] = useState(false)
 
   useLayoutEffect(() => {
     springApi.start();
@@ -133,13 +120,16 @@ export default function ShowcaseArt(){
           return(
             <div style={{position: 'relative', display: 'flex', width: '100%', height: '100%', backgroundColor: bgColor}}>
               <div style={{...center, position: 'absolute', justifyContent: 'center', alignItems: 'center'}}>
-                <h1>LOGO HERE</h1>
+                <div style={{textAlign: 'center'}}>
+                  <Logo src='./images/logo/logo2' size='15rem'/>
+                  <h1>{item + 1} / {Arts.length}</h1>
+                </div>
               </div>
               <Sleeve style={{
                 backgroundColor: `${Arts[item].color}75`,
                 translateX
               }}/>
-              <Frame style={{clipPath, display: 'flex'}} src={IMAGES[item]}/>
+              <Frame style={{clipPath, display: 'flex'}} src={Arts[item].img}/>
             </div>
           )
         })}
@@ -148,14 +138,4 @@ export default function ShowcaseArt(){
   );
 };
 
-// {
-//   backgroundColor: data.vibrant,
-//   position: 'absolute',
-//   top: 0,
-//   bottom: 0,
-//   left: 0,
-//   right: 0,
-//   height: '100vh',
-//   margin: 'auto',
-//   translateX
-// }
+export default ShowcaseArt;
