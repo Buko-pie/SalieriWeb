@@ -42,7 +42,7 @@ class Controller extends BaseController
   public function uploadArts(Request $request)
   {
     if ($request->hasFile('artFiles')) {
-      $path = resource_path() . "/database/data.json";
+      $path = storage_path() . "/database/data.json";
       $data = json_decode(file_get_contents($path), true);
       $arts = $data['Arts'];
 
