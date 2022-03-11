@@ -71,6 +71,7 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
   const [delayMS, setDelayMS] = useState(500);
   const springApi = useSpringRef();
   const [bgColor, setBgColor] = useState(Arts[0].color)
+  const [currImg, setCurrImg] = useState(Arts[0].img)
   const center = {
     display: 'flex',
     inset: '0 0 0 0',
@@ -98,6 +99,9 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
       const nextindex = activeIndex === Arts.length - 1 ? 0 : activeIndex + 1
       if(!delayC){
         setBgColor(Arts[nextindex].color)
+      }
+      if(delayC){
+        setCurrImg(Arts[activeIndex].img)
       }
 
       setDelay(!delayC);
@@ -129,7 +133,7 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
                 backgroundColor: `${Arts[item].color}75`,
                 translateX
               }}/>
-              <Frame style={{clipPath, display: 'flex'}} src={Arts[item].img}/>
+              <Frame style={{clipPath, display: 'flex'}} src={currImg}/>
             </div>
           )
         })}

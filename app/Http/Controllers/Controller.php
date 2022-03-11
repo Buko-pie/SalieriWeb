@@ -41,7 +41,7 @@ class Controller extends BaseController
 
   public function uploadArts(Request $request)
   {
-    if ($request->hasFile('artFiles')) {
+    try {
       $path = storage_path() . "/database/data.json";
       $data = json_decode(file_get_contents($path), true);
       $arts = $data['Arts'];
@@ -60,9 +60,12 @@ class Controller extends BaseController
       $data['Arts'] = $arts;
       // Storage::disk('db')->putFileAs('', json_encode($data), 'data.json');
       Storage::disk('db')->put('data.json', json_encode($data));
+
       return response()->json(['message' => 'ok'], 200);
+    } catch (\Throwable $th) {
+      return response()->json(['error_msg' => $th], 500);
     }
-    return response()->json(['error_msg' => 'No files found'], 404);
+    return response()->json(['error_msg' => 'somthing went wrong'], 500);
   }
 
   public function fetchArts(Request $request)

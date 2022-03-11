@@ -75,11 +75,11 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
     })
   };
 
-  const uploadArts = (e: any) => {
+  const uploadArts = async (e: any) => {
     e.preventDefault();
 
     const data = new FormData();
-    showArts.forEach(art => {
+    showArts.forEach((art, index) => {
       if (art.file) {
         data.append('artFiles[]', art.file, `art_${art.id}`);
         data.append('names[]', `art_${art.id}`);
@@ -88,7 +88,7 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
 
     axios.post(`${_origin}/uploadArts`, data, {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'application/octet-stream'
       }
     })
     .then(res => {
@@ -99,7 +99,7 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
     })
   };
 
-  const uploadSettings = (e: any) => {
+  const uploadSettings = async (e: any) => {
     e.preventDefault();
 
     const data = new FormData();
