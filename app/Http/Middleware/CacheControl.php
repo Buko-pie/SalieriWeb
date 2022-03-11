@@ -10,7 +10,7 @@ class CacheControl
   {
     $response = $next($request);
 
-    $response->header('Cache-Control', 'no-cache, must-revalidate,');
+    $response->header('Cache-Control', 'no-cache, max-age=100');
     // Or whatever you want it to be:
     // $response->header('Cache-Control', 'max-age=100');
 

@@ -41,31 +41,54 @@ class Controller extends BaseController
 
   public function uploadArts(Request $request)
   {
-    try {
-      $path = storage_path() . "/database/data.json";
-      $data = json_decode(file_get_contents($path), true);
-      $arts = $data['Arts'];
+    $path = storage_path() . "/database/data.json";
+    $data = json_decode(file_get_contents($path), true);
+    $arts = $data['Arts'];
 
-      $files = $request->file('artFiles');
-      $names = $request['names'];
+    $files = $request->file('artFiles');
+    $names = $request['names'];
 
-      foreach ($files as $index => $art) {
-        $i = (int)explode('_', $names[$index])[1];
-        Storage::disk('public_art_upload')->putFileAs('art/', $art, $names[$index]);
+    foreach ($files as $index => $art) {
+      $i = (int)explode('_', $names[$index])[1];
+      $storage = Storage::disk('public_art_upload')->putFileAs('art/', $art, $names[$index]);
+      $url = Storage::disk('public_art_upload')->path($storage);
 
-        $palette = Palette::fromFilename($art);
-        $extractor = new ColorExtractor($palette);
-        $arts[$i]['color'] = Color::fromIntToHex($extractor->extract(1)[0]);
-      }
-      $data['Arts'] = $arts;
-      // Storage::disk('db')->putFileAs('', json_encode($data), 'data.json');
-      Storage::disk('db')->put('data.json', json_encode($data));
-
-      return response()->json(['message' => 'ok'], 200);
-    } catch (\Throwable $th) {
-      return response()->json(['error_msg' => $th], 500);
+      $palette = Palette::fromFilename($url);
+      $extractor = new ColorExtractor($palette);
+      $arts[$i]['color'] = Color::fromIntToHex($extractor->extract(1)[0]);
     }
-    return response()->json(['error_msg' => 'somthing went wrong'], 500);
+    $data['Arts'] = $arts;
+    // Storage::disk('db')->putFileAs('', json_encode($data), 'data.json');
+    Storage::disk('db')->put('data.json', json_encode($data));
+
+    return response()->json(['message' => 'ok'], 200);
+
+    // try {
+    //   $path = storage_path() . "/database/data.json";
+    //   $data = json_decode(file_get_contents($path), true);
+    //   $arts = $data['Arts'];
+
+    //   $files = $request->file('artFiles');
+    //   $names = $request['names'];
+
+    //   foreach ($files as $index => $art) {
+    //     $i = (int)explode('_', $names[$index])[1];
+    //     $storage = Storage::disk('public_art_upload')->putFileAs('art/', $art, $names[$index]);
+    //     $url = Storage::disk('storage_attachment')->path($storage);
+
+    //     $palette = Palette::fromFilename($url);
+    //     $extractor = new ColorExtractor($palette);
+    //     $arts[$i]['color'] = Color::fromIntToHex($extractor->extract(1)[0]);
+    //   }
+    //   $data['Arts'] = $arts;
+    //   // Storage::disk('db')->putFileAs('', json_encode($data), 'data.json');
+    //   Storage::disk('db')->put('data.json', json_encode($data));
+
+    //   return response()->json(['message' => 'ok'], 200);
+    // } catch (\Throwable $th) {
+    //   return response()->json(['error_msg' => $th], 500);
+    // }
+    // return response()->json(['error_msg' => 'somthing went wrong'], 500);
   }
 
   public function fetchArts(Request $request)
