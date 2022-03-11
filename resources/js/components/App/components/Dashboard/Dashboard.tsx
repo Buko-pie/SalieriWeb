@@ -4,6 +4,7 @@ import { Flex, NavOption } from '../../styles/global-styles';
 import axios from 'axios'
 import { usePalette } from 'react-palette'
 import { Art } from '../../types'
+import FastAverageColor from 'fast-average-color';
 
 const _origin = window.location.origin;
 
@@ -51,6 +52,8 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
   const [showArts, setShowArts] = useState(Arts);
   const [logos, setLogos] = useState<any[]>(['./images/logo/logo', './images/logo/logo2']);
   const [active, setActive] = useState(1)
+  const fac = new FastAverageColor();
+
   const center = {
     display: 'flex',
     inset: '0 0 0 0',
@@ -83,6 +86,7 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
       if (art.file) {
         data.append('artFiles[]', art.file, `art_${art.id}`);
         data.append('names[]', `art_${art.id}`);
+        data.append('colors[]', `${art.color}`);
       }
     });
 
@@ -137,7 +141,20 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
         img: reader.result,
         file: e.target.files[0],
       };
-      setShowArts(test);
+
+      fac.getColorAsync(`${reader.result}`)
+      .then(color => {
+        test[index] = {
+          ...test[index],
+          img: reader.result,
+          file: e.target.files[0],
+          color: color.hex
+        };
+        setShowArts(test);
+      })
+      .catch(e => {
+          console.log(e);
+      });
     }.bind(this);
   };
 

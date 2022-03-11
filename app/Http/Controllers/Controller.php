@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Filesystem\Filesystem;
 
-use League\ColorExtractor\Color;
-use League\ColorExtractor\ColorExtractor;
-use League\ColorExtractor\Palette;
 
 class Controller extends BaseController
 {
@@ -47,15 +44,12 @@ class Controller extends BaseController
 
     $files = $request->file('artFiles');
     $names = $request['names'];
+    $colors = $request['colors'];
 
     foreach ($files as $index => $art) {
       $i = (int)explode('_', $names[$index])[1];
       $storage = Storage::disk('public_art_upload')->putFileAs('art/', $art, $names[$index]);
-      $url = Storage::disk('public_art_upload')->path($storage);
-
-      $palette = Palette::fromFilename($url);
-      $extractor = new ColorExtractor($palette);
-      $arts[$i]['color'] = Color::fromIntToHex($extractor->extract(1)[0]);
+      $arts[$i]['color'] = $colors[$index];
     }
     $data['Arts'] = $arts;
     // Storage::disk('db')->putFileAs('', json_encode($data), 'data.json');
