@@ -105,7 +105,7 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
       }
 
       setDelay(!delayC);
-      setDelayMS(delayC ? 50 : 3000);
+      setDelayMS(delayC ? 500 : 3500);
     },
     exitBeforeEnter: true,
     delay: delayMS,
