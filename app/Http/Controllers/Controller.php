@@ -53,7 +53,7 @@ class Controller extends BaseController
         $i = (int)explode('_', $names[$index])[1];
         Storage::disk('public_art_upload')->putFileAs('art/', $art, $names[$index]);
 
-        $palette = Palette::fromFilename(public_path() . '/images/art/' . $names[$index]);
+        $palette = Palette::fromFilename($art);
         $extractor = new ColorExtractor($palette);
         $arts[$i]['color'] = Color::fromIntToHex($extractor->extract(1)[0]);
       }
