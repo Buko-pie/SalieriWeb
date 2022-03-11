@@ -18,7 +18,7 @@ import { Art, Config } from '../../types'
 
 const _origin = window.location.origin;
 
-export default function HomePage() {
+const HomePage: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [navStat, setNavStat] = useState(false);
   const [Arts, setArts] = useState<Art[]>([])
@@ -33,16 +33,27 @@ export default function HomePage() {
     },
   });
 
+  async function settingUp(arts: Art[], configs: Config){
+    setArts(arts);
+    setConfigs(configs)
+
+    arts.forEach((art) => {
+      const img = new Image();
+      img.src = art.img;
+      console.log(img);
+    });
+  }
+
   useEffect(() => {
     axios.get(`${_origin}/fetchArts`)
     .then(res => {
-      setArts(res.data.arts);
-      setConfigs(res.data.configs)
+      settingUp(res.data.arts, res.data.configs)
     })
     .catch(err =>{
       console.error(err);
     })
   }, [])
+
 
   const handleOpenEvent = () => {
     setIsNavOpen(!isNavOpen)
@@ -93,3 +104,5 @@ export default function HomePage() {
     </>
   );
 }
+
+export default HomePage
