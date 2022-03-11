@@ -79,15 +79,12 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
     e.preventDefault();
 
     const data = new FormData();
-    console.log('uploadArts: ', showArts);
     showArts.forEach((art, index) => {
       if (art.file) {
-        console.log('ART FILE FOUND @ ', index)
         data.append('artFiles[]', art.file, `art_${art.id}`);
         data.append('names[]', `art_${art.id}`);
       }
     });
-    console.log(data.getAll('artFiles[]'))
 
     axios.post(`${_origin}/uploadArts`, data, {
       headers: {
@@ -134,7 +131,6 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
     var url = reader.readAsDataURL(e.target.files[0]);
     const test = [...showArts];
 
-    console.log('file:', e.target.files[0]);
     reader.onloadend = async function (event) {
       test[index] = {
         ...test[index],
@@ -142,8 +138,6 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
         file: e.target.files[0],
       };
       setShowArts(test);
-
-      console.log('showArts ', Arts)
     }.bind(this);
   };
 
