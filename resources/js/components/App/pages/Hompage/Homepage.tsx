@@ -40,7 +40,6 @@ const HomePage: React.FC = () => {
     arts.forEach((art) => {
       const img = new Image();
       img.src = art.img;
-      console.log(img);
     });
   }
 
