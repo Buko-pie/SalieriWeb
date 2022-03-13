@@ -82,15 +82,18 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
   const transitions = useTransition(activeIndex, {
     from: {
       clipPath: "polygon(0% 0%, 0% 100%, 0% 100%, 0% 0%)",
-      translateX: '-100%'
+      translateX: '-160%',
+      width: '100vh',
     },
     enter: {
       clipPath: "polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)",
-      translateX: '-100%'
+      translateX: '-160%',
+      width: '100vh',
     },
     leave: {
       clipPath: "polygon(100% 0%, 100% 100%, 100% 100%, 100% 0%) ",
-      translateX: '100%'
+      translateX: '120%',
+      width: '140vh',
     },
     onRest: (_springs, _ctrl, item) => {
       if (activeIndex === item) {
@@ -120,7 +123,7 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
     <>
       <div style={{position: 'relative', display: 'flex', width: '100%', height: '100%'}}>
         {transitions((springs, item) => {
-          const { clipPath, translateX } = springs
+          const { clipPath, translateX, width } = springs
           return(
             <div style={{position: 'relative', display: 'flex', width: '100%', height: '100%', backgroundColor: bgColor}}>
               <div style={{...center, position: 'absolute', justifyContent: 'center', alignItems: 'center'}}>
@@ -131,7 +134,8 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
               </div>
               <Sleeve style={{
                 backgroundColor: `${Arts[item].color}75`,
-                translateX
+                translateX,
+                width
               }}/>
               <Frame style={{clipPath, display: 'flex'}} src={currImg}/>
             </div>

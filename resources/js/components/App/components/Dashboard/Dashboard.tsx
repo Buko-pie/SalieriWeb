@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Flex, NavOption } from '../../styles/global-styles';
 import axios from 'axios'
 import { usePalette } from 'react-palette'
-import { Art } from '../../types'
+import { Art, Config } from '../../types'
 import FastAverageColor from 'fast-average-color';
 
 const _origin = window.location.origin;
@@ -17,7 +17,7 @@ const BoardFlex = styled(Flex)`
 const ArtFrame = styled.input<{ src?: string }>`
   display: flex;
   height: 14rem;
-  width: 24rem;
+  width: 100%;
   position: relative;
   ${({ src }) => src &&
     `&:before {
@@ -47,7 +47,7 @@ const ArtFramNum = styled.h1`
   text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
 `
 
-const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
+const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
   const [showDashboard, setShowDashboard] = useState(false);
   const [showArts, setShowArts] = useState(Arts);
   const [logos, setLogos] = useState<any[]>(['./images/logo/logo', './images/logo/logo2']);
@@ -83,16 +83,21 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
 
     const data = new FormData();
     showArts.forEach((art, index) => {
-      if (art.file) {
-        data.append('artFiles[]', art.file, `art_${art.id}`);
-        data.append('names[]', `art_${art.id}`);
-        data.append('colors[]', `${art.color}`);
+      if (art.toUpdate) {
+      data.append('index[]', `${art.id}`);
+      data.append('title[]', `${art.title}`);
+      data.append('date[]', `${art.date}`);
+      data.append('link[]', `${art.link}`);
+       if(art.file){
+          data.append('artFiles[]', art.file, `art_${art.id}`);
+          data.append('colors[]', `${art.color}`);
+       }
       }
     });
 
     axios.post(`${_origin}/uploadArts`, data, {
       headers: {
-        'Content-Type': 'application/octet-stream'
+        'Content-Type': 'multipart/form-data  '
       }
     })
     .then(res => {
@@ -136,11 +141,11 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
     const test = [...showArts];
 
     reader.onloadend = async function (event) {
-      test[index] = {
-        ...test[index],
-        img: reader.result,
-        file: e.target.files[0],
-      };
+      // test[index] = {
+      //   ...test[index],
+      //   img: reader.result,
+      //   file: e.target.files[0],
+      // };
 
       fac.getColorAsync(`${reader.result}`)
       .then(color => {
@@ -148,7 +153,8 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
           ...test[index],
           img: reader.result,
           file: e.target.files[0],
-          color: color.hex
+          color: color.hex,
+          toUpdate: true,
         };
         setShowArts(test);
       })
@@ -157,6 +163,28 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
       });
     }.bind(this);
   };
+
+  const onTxtChange = async (e, index, type) => {
+    const temp = [...showArts];
+    temp[index].toUpdate = true;
+    switch (type) {
+      case 0:
+        temp[index].title = e.target.value;
+        break;
+
+      case 1:
+        temp[index].date = e.target.value;
+        break;
+
+      case 2:
+        temp[index].link = e.target.value;
+        break;
+
+      default:
+        break;
+    }
+    setShowArts(temp);
+  }
 
   const onLogoChange = async (e, index) => {
     var reader = new FileReader();
@@ -204,7 +232,39 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
         <div style={{display: 'flex', flexFlow: 'row wrap', justifyContent: 'space-evenly', rowGap: '2rem', maxHeight: '24rem', overflowY: 'scroll'}}>
           {showArts.map((art : any, index : any) => {
             return (
-              <div style={{display: 'flex', position: 'relative'}}>
+              <div style={{position: 'relative'}}>
+                <Flex style={{flexFlow: 'row wrap'}}>
+                  <input type='text' placeholder='title' value={art.title}
+                    onChange={e => onTxtChange(e, index, 0)}
+                    id={`artTitle_${index}`}
+                    name={`artTitle_${index}`}
+                    style={{
+                      padding: '0.5rem',
+                      outline: 'none',
+                      border: 'thin solid black'
+                  }}/>
+                  <input type='text' placeholder='date' value={art.date}
+                    onChange={e => onTxtChange(e, index, 1)}
+                    id={`artDate_${index}`}
+                    name={`artDate_${index}`}
+                    style={{
+                      padding: '0.5rem',
+                      outline: 'none',
+                      border: 'thin solid black',
+                      borderLeft: 'none'
+                  }}/>
+                </Flex>
+                <input type='text' placeholder='link' value={art.link}
+                  onChange={e => onTxtChange(e, index, 2)}
+                  id={`artLink_${index}`}
+                  name={`artLink_${index}`}
+                  style={{
+                    padding: '0.5rem',
+                    outline: 'none',
+                    width: '100%',
+                    border: 'thin solid black',
+                    borderTop: 'none'
+                  }}/>
                 <ArtFrame
                   src={art.img}
                   type="file"
@@ -240,6 +300,7 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
           id="textscroller"
           name="textscroller"
           placeholder="TEXTSCROLLER TEXT"
+          value={Config.textscroll}
           style={{
             width: '100%',
             padding: '0.5rem',
@@ -249,7 +310,7 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
         />
         <br/>
         <h1>Logos</h1>
-        <div style={{display: 'flex', flexFlow: 'row wrap', justifyContent: 'space-evenly'}}>
+        <div style={{display: 'flex', flexFlow: 'row', columnGap: '2rem', justifyContent: 'space-evenly'}}>
           {logos.map((logo, index) => {
             return(
               <ArtFrame
@@ -286,7 +347,7 @@ const Dashboard: React.FC<{Arts: Art[]}> = ({Arts}) => {
               General
             </NavOption>
           </Flex>
-          <div style={{position: 'relative', display: 'flex', justifyContent: 'center', width: '100vh' }}>
+          <div style={{position: 'relative', margin: '1rem 0 0 0', display: 'flex', justifyContent: 'center', width: '100vh' }}>
             {active === 1 ? renderArtSetting() : active === 2 && renderSettingsGeneral()}
           </div>
         </div>

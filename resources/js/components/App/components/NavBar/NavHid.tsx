@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { WrapperNavHid } from '../Wrappers';
+import { Art } from '../../types'
 
 const NavHidBG = styled.div`
   z-index: 1;
@@ -20,6 +21,7 @@ const Heading = styled.h2`
   text-transform: uppercase;
   white-space: nowrap;
   left: -0.7rem;
+  margin: 0 0 1rem 0;
 `;
 
 const NavHidContent = styled.div`
@@ -32,6 +34,9 @@ const NavHidContent = styled.div`
 
 const UlContent = styled.ul`
   padding: 2.5rem 0 0 0.5rem;
+  list-style-type: none;
+  font-weight: 700;
+  letter-spacing: 0.15rem;
 `;
 
 // let users = [];
@@ -45,7 +50,7 @@ const UlContent = styled.ul`
 //   users = data;
 // });
 
-const NavHid: React.FC<{ navStat?: boolean }> = ({ navStat = false }) => {
+const NavHid: React.FC<{ Arts: Art[], navStat?: boolean }> = ({ Arts, navStat = false }) => {
   const [animEnd, setAnimEnd] = useState(false);
 
   // useEffect(() => {
@@ -63,13 +68,18 @@ const NavHid: React.FC<{ navStat?: boolean }> = ({ navStat = false }) => {
           >
             <Heading>「Featured Images」</Heading>
             <UlContent>
-              {/* {users.map(user => {
+              {Arts.map(art => {
                 return (
-                  <li>
-                    <a href={user['url']}>{user['login']}</a>
-                  </li>
+                  <a onClick={() => {
+                    window.open(art['link'], '_blank');
+                  }}>
+                    <li style={{margin: '1rem 0 0 0', lineHeight: '0.8rem', cursor: 'pointer'}} className="hover-glow">
+                      <p style={{margin: '0'}}>{art['title']}</p>
+                      <span style={{fontWeight: '100'}}>{art['date']}</span>
+                    </li>
+                  </a>
                 );
-              })} */}
+              })}
             </UlContent>
           </NavHidContent>
         )}
