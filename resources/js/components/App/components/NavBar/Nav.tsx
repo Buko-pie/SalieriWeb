@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Art } from '../../types'
+import { Art, Config } from '../../types'
 import styled from 'styled-components';
 import { WrapperNav } from '../Wrappers';
 import { SiTwitter, SiKofi, SiPixiv } from 'react-icons/si';
@@ -114,7 +114,7 @@ const customStyles = {
 
 Modal.setAppElement('#root');
 
-const Nav: React.FC<{Arts: Art[]}> = ({Arts}) => {
+const Nav: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
   // let subtitle;
   const [isLogoPressed, setIsLogoPressed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null!);
@@ -163,7 +163,7 @@ const Nav: React.FC<{Arts: Art[]}> = ({Arts}) => {
           contentLabel="Example Modal"
       >
           <button onClick={() => setIsModalOpen(false)}>X</button>
-        <Dashboard Arts={Arts}/>
+        <Dashboard Arts={Arts} Config={Config}/>
       </Modal>
       <InputType ref={inputRef} type="text" />
       <WrapperNav className="crt inset-shadow">

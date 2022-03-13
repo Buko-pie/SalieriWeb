@@ -63,11 +63,11 @@ const HomePage: React.FC = () => {
   // TODO: Make states efficient in refactor;
   return (
     <>
-      {Arts && Arts.length &&
+      {Arts && Arts.length && configs &&
         <WrapperPage>
           <styl.Flex>
             <styl.ShadowBox>
-              <Nav Arts={Arts}/>
+              <Nav Arts={Arts} Config={configs}/>
             </styl.ShadowBox>
           </styl.Flex>
           <styl.Flex>
@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
               id="opening"
               style={animNav}
             >
-              <NavHid navStat={navStat} />
+              <NavHid Arts={Arts} navStat={navStat} />
               <styl.ShadowBox>
                 { configs &&
                   <TextScroller textscroller={configs.textscroll}/>

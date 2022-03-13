@@ -3,6 +3,10 @@ export interface Art {
   img?: any;
   color?: string;
   file?: File;
+  title: string;
+  date?: string;
+  link?: string;
+  toUpdate?: boolean;
 }
 
 export interface Config {

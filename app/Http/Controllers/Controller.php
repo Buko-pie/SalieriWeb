@@ -43,13 +43,21 @@ class Controller extends BaseController
     $arts = $data['Arts'];
 
     $files = $request->file('artFiles');
-    $names = $request['names'];
+    $artIndex = $request['index'];
     $colors = $request['colors'];
+    $title = $request['title'];
+    $date = $request['date'];
+    $link = $request['link'];
 
-    foreach ($files as $index => $art) {
-      $i = (int)explode('_', $names[$index])[1];
-      $storage = Storage::disk('public_art_upload')->putFileAs('art/', $art, $names[$index]);
-      $arts[$i]['color'] = $colors[$index];
+    foreach ($artIndex as $index => $art) {
+      $i = (int)$artIndex[$index];
+      if ($request->hasFile('artFiles')) {
+        Storage::disk('public_art_upload')->putFileAs('art/', $files[$index], 'art_' . $i);
+        $arts[$i]['color'] = $colors[$index];
+      }
+      $arts[$i]['title'] = $title[$index];
+      $arts[$i]['date'] = $date[$index];
+      $arts[$i]['link'] = $link[$index];
     }
     $data['Arts'] = $arts;
     // Storage::disk('db')->putFileAs('', json_encode($data), 'data.json');
