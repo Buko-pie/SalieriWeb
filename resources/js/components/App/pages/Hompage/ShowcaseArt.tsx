@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
+import { useSelector } from 'react-redux'
+import { actions, State } from "../../state";
 import styled from 'styled-components';
 import Logo from '../../components/Logo';
 import {
+  Spring,
   useTransition,
   useSpring,
   useChain,
@@ -63,6 +66,41 @@ const bgCont = styled.div`
   height: 100vh;
   margin: auto;
 `
+function invertColor(hex?: string, bw?: boolean) {
+  if(hex){
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    // convert 3-digit hex to 6-digits.
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+    }
+    var r = parseInt(hex.slice(0, 2), 16),
+        g = parseInt(hex.slice(2, 4), 16),
+        b = parseInt(hex.slice(4, 6), 16);
+    if (bw) {
+        return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+            ? '#000000'
+            : '#FFFFFF';
+    }
+    // invert color components
+    let R = (255 - r).toString(16);
+    let G = (255 - g).toString(16);
+    let B = (255 - b).toString(16);
+    // pad each with zeros and return
+    return "#" + padZero(R, R.length) + padZero(G, G.length) + padZero(B, B.length);
+  }
+  return hex
+}
+
+function padZero(str, len) {
+  len = len || 2;
+  var zeros = new Array(len).join('0');
+  return (zeros + str).slice(-len);
+}
 
 
 const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
@@ -72,6 +110,7 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
   const springApi = useSpringRef();
   const [bgColor, setBgColor] = useState(Arts[0].color)
   const [currImg, setCurrImg] = useState(Arts[0].img)
+  const active = useSelector((state: State) => state.hover)
   const center = {
     display: 'flex',
     inset: '0 0 0 0',
@@ -96,19 +135,20 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
       width: '140vh',
     },
     onRest: (_springs, _ctrl, item) => {
-      if (activeIndex === item) {
-        setActiveIndex(activeIndex === Arts.length - 1 ? 0 : activeIndex + 1);
-      }
       const nextindex = activeIndex === Arts.length - 1 ? 0 : activeIndex + 1
+      if (activeIndex === item) {
+        setActiveIndex(nextindex);
+      }
       if(!delayC){
+        setDelay(true);
         setBgColor(Arts[nextindex].color)
       }
       if(delayC){
+        setDelay(false);
         setCurrImg(Arts[activeIndex].img)
       }
 
-      setDelay(!delayC);
-      setDelayMS(delayC ? 500 : 3500);
+      setDelayMS(delayC ? 400 : 3000);
     },
     exitBeforeEnter: true,
     delay: delayMS,
@@ -118,6 +158,15 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
   useLayoutEffect(() => {
     springApi.start();
   }, [activeIndex]);
+
+  useEffect(() => {
+    if(active !== null){
+      setDelay(true)
+      springApi.pause()
+    }else{
+      springApi.resume()
+    }
+  },[active])
 
   return (
     <>
@@ -129,7 +178,7 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
               <div style={{...center, position: 'absolute', justifyContent: 'center', alignItems: 'center'}}>
                 <div style={{textAlign: 'center'}}>
                   <Logo src='./images/logo/logo2' size='15rem'/>
-                  <h1>{item + 1} / {Arts.length}</h1>
+                  <h1>{item + 1} | {Arts.length}</h1>
                 </div>
               </div>
               <Sleeve style={{
@@ -137,7 +186,33 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
                 translateX,
                 width
               }}/>
-              <Frame style={{clipPath, display: 'flex'}} src={currImg}/>
+              <Spring
+                from={{
+                  translateX: '-100%'
+                }}
+                to={{
+                  translateX: '100%'
+                }}
+                reset
+              >
+                {props => (
+                    <>
+                    {!delayC &&
+                      <Sleeve style={{
+                        ...props,
+                        backgroundColor: `${invertColor(bgColor)}`,
+                      }}/>
+                    }
+                    </>
+                  )
+                }
+              </Spring>
+
+              {active !== null ?
+                <Frame src={Arts[active].img}/>
+                :
+                <Frame style={{clipPath, display: 'flex'}} src={currImg}/>
+              }
             </div>
           )
         })}

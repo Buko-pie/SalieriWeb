@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Flex, NavOption } from '../../styles/global-styles';
+import { Flex, NavOption, Button } from '../../styles/global-styles';
 import axios from 'axios'
 import { usePalette } from 'react-palette'
 import { Art, Config } from '../../types'
 import FastAverageColor from 'fast-average-color';
+import TextScroller from '../TextScroller/TextScroller';
 
 const _origin = window.location.origin;
 
@@ -12,6 +13,9 @@ const _origin = window.location.origin;
 const BoardFlex = styled(Flex)`
   min-width: 20rem;
   min-height: 3rem;
+  height: 35rem;
+  display: flex;
+  align-items: center;
 `;
 
 const ArtFrame = styled.input<{ src?: string }>`
@@ -50,9 +54,16 @@ const ArtFramNum = styled.h1`
 const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
   const [showDashboard, setShowDashboard] = useState(false);
   const [showArts, setShowArts] = useState(Arts);
+  const [status, setStatus] = useState('');
+  const [updating, setUpdating] = useState(false);
+  const [txtScroller, setTxtScroller] = useState('')
   const [logos, setLogos] = useState<any[]>(['./images/logo/logo', './images/logo/logo2']);
   const [active, setActive] = useState(1)
   const fac = new FastAverageColor();
+
+  useEffect(() => {
+    setTxtScroller(Config.textscroll)
+  }, [])
 
   const center = {
     display: 'flex',
@@ -80,59 +91,75 @@ const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
 
   const uploadArts = async (e: any) => {
     e.preventDefault();
-
-    const data = new FormData();
-    showArts.forEach((art, index) => {
-      if (art.toUpdate) {
-      data.append('index[]', `${art.id}`);
-      data.append('title[]', `${art.title}`);
-      data.append('date[]', `${art.date}`);
-      data.append('link[]', `${art.link}`);
-       if(art.file){
-          data.append('artFiles[]', art.file, `art_${art.id}`);
-          data.append('colors[]', `${art.color}`);
-       }
-      }
-    });
-
-    axios.post(`${_origin}/uploadArts`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data  '
-      }
-    })
-    .then(res => {
-
-    })
-    .catch(err => {
-      console.error(err);
-    })
+    if(!updating){
+      const data = new FormData();
+      showArts.forEach((art, index) => {
+        if (art.toUpdate) {
+        data.append('index[]', `${art.id}`);
+        data.append('title[]', `${art.title}`);
+        data.append('date[]', `${art.date}`);
+        data.append('link[]', `${art.link}`);
+        if(art.file){
+            data.append('artFiles[]', art.file, `art_${art.id}`);
+            data.append('colors[]', `${art.color}`);
+        }
+        }
+      });
+      setUpdating(true);
+      setStatus('Arts showcase updating...')
+      axios.post(`${_origin}/uploadArts`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data  '
+        }
+      })
+      .then(res => {
+        setUpdating(false);
+        setStatus('Arts showcase updated!')
+      })
+      .catch(err => {
+        console.error(err);
+        setStatus('Error: ' + err)
+        setUpdating(false);
+      })
+    }else{
+      setStatus('Arts showcase is still updating')
+    }
   };
 
   const uploadSettings = async (e: any) => {
     e.preventDefault();
 
-    const data = new FormData();
-    if(e.target[0].value){
-      data.append('textscroll', e.target[0].value)
-    }
-    if(e.target[1].files[0]){
-      data.append('logo', e.target[1].files[0])
-    }
-    if(e.target[2].files[0]){
-      data.append('logo2', e.target[2].files[0])
-    }
-
-    axios.post(`${_origin}/setConfigs`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+    if(!updating){
+      const data = new FormData();
+      if(e.target[0].value){
+        data.append('textscroll', txtScroller)
       }
-    })
-    .then(res => {
+      if(e.target[1].files[0]){
+        data.append('logo', e.target[1].files[0])
+      }
+      if(e.target[2].files[0]){
+        data.append('logo2', e.target[2].files[0])
+      }
 
-    })
-    .catch(err => {
-      console.error(err);
-    })
+      setUpdating(true);
+      setStatus('Settings updating...')
+      axios.post(`${_origin}/setConfigs`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+      .then(res => {
+        setUpdating(false);
+        setStatus('Settings updated!')
+      })
+      .catch(err => {
+        console.error(err);
+        setStatus('Error: ' + err)
+        setUpdating(false);
+      })
+    }else{
+      setStatus('Settings is still updating')
+    }
   };
 
   const onImgChange = async (e, index) => {
@@ -218,7 +245,9 @@ const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
             borderRadius: '0.5rem',
           }}
         />
-        <button type="submit">submit</button>
+        <Flex>
+          <Button style={{marginLeft: 'auto'}} type="submit">Submit</Button>
+        </Flex>
       </form>
     );
   };
@@ -226,13 +255,20 @@ const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
   const renderArtSetting = () => {
     return (
       <form
-        style={{ position: 'relative', width: '100%', }}
+        style={{
+          position: 'relative',
+          display: 'flex',
+          flexFlow: 'column',
+          justifyContent: 'space-between',
+          width: '100%',
+          height: '100%',
+        }}
         onSubmit={uploadArts}
       >
         <div style={{display: 'flex', flexFlow: 'row wrap', justifyContent: 'space-evenly', rowGap: '2rem', maxHeight: '24rem', overflowY: 'scroll'}}>
           {showArts.map((art : any, index : any) => {
             return (
-              <div style={{position: 'relative'}}>
+              <div key={art.id} style={{position: 'relative'}}>
                 <Flex style={{flexFlow: 'row wrap'}}>
                   <input type='text' placeholder='title' value={art.title}
                     onChange={e => onTxtChange(e, index, 0)}
@@ -281,7 +317,9 @@ const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
             );
           })}
         </div>
-        <button type="submit">Update</button>
+        <Flex>
+          <Button style={{marginLeft: 'auto'}} type="submit">Update</Button>
+        </Flex>
       </form>
     )
   }
@@ -293,6 +331,9 @@ const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
         onSubmit={uploadSettings}
         style={{
           width: '100%',
+          display: 'flex',
+          flexFlow: 'column',
+          justifyContent: 'space-between'
         }}
       >
         <input
@@ -300,7 +341,8 @@ const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
           id="textscroller"
           name="textscroller"
           placeholder="TEXTSCROLLER TEXT"
-          value={Config.textscroll}
+          value={txtScroller}
+          onChange={e => setTxtScroller(e.target.value)}
           style={{
             width: '100%',
             padding: '0.5rem',
@@ -308,12 +350,12 @@ const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
             borderRadius: '0.5rem',
           }}
         />
-        <br/>
-        <h1>Logos</h1>
+        <h1 style={{margin: 0,}}>Logos</h1>
         <div style={{display: 'flex', flexFlow: 'row', columnGap: '2rem', justifyContent: 'space-evenly'}}>
           {logos.map((logo, index) => {
             return(
               <ArtFrame
+                key={index}
                 src={logo}
                 type="file"
                 id={`logo_${index}`}
@@ -327,27 +369,32 @@ const Dashboard: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
 
           }
         </div>
-        <button type="submit">submit</button>
+        <Flex>
+          <Button style={{marginLeft: 'auto'}} type="submit">Submit</Button>
+        </Flex>
       </form>
     );
   };
 
   const renderDashBoard = () => {
     return (
-      <Flex style={{width: '100vh' }}>
+      <Flex style={{width: '100vh', height: '35rem' }}>
         <div>
-          <h2>
-            <b>SETTINGS</b>
-          </h2>
           <Flex>
-            <NavOption onClick={() => setActive(1)} activeIndex={active === 1}>
+            <h2>
+              <b>SETTINGS</b>
+            </h2>
+            <p style={{marginLeft: 'auto', color: 'green'}}>{status}</p>
+          </Flex>
+          <Flex style={{margin: '0 0 1rem 0'}}>
+            <NavOption onClick={() => {setActive(1); setStatus('')}} activeIndex={active === 1}>
               Showcase Arts
             </NavOption>
-            <NavOption onClick={() => setActive(2)} activeIndex={active === 2}>
+            <NavOption onClick={() => {setActive(2); setStatus('')}} activeIndex={active === 2}>
               General
             </NavOption>
           </Flex>
-          <div style={{position: 'relative', margin: '1rem 0 0 0', display: 'flex', justifyContent: 'center', width: '100vh' }}>
+          <div style={{position: 'relative', display: 'flex', justifyContent: 'center', width: '100vh', height: '80%' }}>
             {active === 1 ? renderArtSetting() : active === 2 && renderSettingsGeneral()}
           </div>
         </div>
