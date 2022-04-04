@@ -23,7 +23,7 @@ class Kernel extends HttpKernel
     \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
     \App\Http\Middleware\CacheControl::class,
 
-    // appending custom middleware 
+    // appending custom middleware
     \App\Http\Middleware\HttpsProtocol::class,
   ];
 
