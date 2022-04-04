@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { WrapperNavHid } from '../Wrappers';
 import { Art } from '../../types'
+import { useDispatch, useSelector } from 'react-redux'
+import { artActive, artDeactive } from '../../state/actions/index';
+import { bindActionCreators } from "redux";
+import { actions, State } from "../../state";
 
 const NavHidBG = styled.div`
   z-index: 1;
@@ -52,6 +56,9 @@ const UlContent = styled.ul`
 
 const NavHid: React.FC<{ Arts: Art[], navStat?: boolean }> = ({ Arts, navStat = false }) => {
   const [animEnd, setAnimEnd] = useState(false);
+  const dispatch = useDispatch();
+  const { artActive, artDeactive } = bindActionCreators(actions, dispatch)
+  const active = useSelector((state: State) => state.hover)
 
   // useEffect(() => {
   //   if (!navStat) {
@@ -68,12 +75,18 @@ const NavHid: React.FC<{ Arts: Art[], navStat?: boolean }> = ({ Arts, navStat = 
           >
             <Heading>「Featured Images」</Heading>
             <UlContent>
-              {Arts.map(art => {
+              {Arts.map((art, index) => {
                 return (
-                  <a onClick={() => {
-                    window.open(art['link'], '_blank');
-                  }}>
-                    <li style={{margin: '1rem 0 0 0', lineHeight: '0.8rem', cursor: 'pointer'}} className="hover-glow">
+                  <a
+                    key={art.id}
+                    onClick={() => {
+                      window.open(art['link'], '_blank');
+                    }}
+                  >
+                    <li style={{padding: '1rem 0 0 0', lineHeight: '0.8rem', cursor: 'pointer'}} className="hover-glow"
+                      onMouseEnter={()=> {artActive(index)}}
+                      onMouseLeave={()=> artDeactive()}
+                    >
                       <p style={{margin: '0'}}>{art['title']}</p>
                       <span style={{fontWeight: '100'}}>{art['date']}</span>
                     </li>

@@ -74,4 +74,23 @@ export const NavOption = styled.button<{ activeIndex: boolean }>`
   background-color: ${({ activeIndex }) => (activeIndex ? 'white' : 'transparent')};
   color: ${({ activeIndex }) => (activeIndex ? 'black' : 'white')};
   border-bottom: ${({ activeIndex }) => activeIndex && '3px solid white'};
+  border-radius: 0.75rem 0.75rem 0 0;
+  font-weight: ${({ activeIndex }) => activeIndex && '700'};
+  padding: 0.5rem 1rem 0;
+`
+
+export const Button = styled.button`
+  background: #00000000;
+  color: white;
+  border: white solid;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+`
+
+export const ButtonIco = styled.button`
+  background: #ffffff00;
+  color: white;
+  font-weight: 1000;
+  cursor: pointer;
 `

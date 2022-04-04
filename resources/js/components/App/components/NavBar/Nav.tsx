@@ -3,7 +3,7 @@ import { Art, Config } from '../../types'
 import styled from 'styled-components';
 import { WrapperNav } from '../Wrappers';
 import { SiTwitter, SiKofi, SiPixiv } from 'react-icons/si';
-import { Flex, Grid, TextVertLR } from '../../styles/global-styles';
+import { Flex, Grid, TextVertLR, ButtonIco } from '../../styles/global-styles';
 import axios from 'axios'
 import Modal from 'react-modal';
 import Dashboard from '../Dashboard';
@@ -118,7 +118,7 @@ const Nav: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
   // let subtitle;
   const [isLogoPressed, setIsLogoPressed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null!);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(true);
 
   useEffect(() => {
     if (isLogoPressed) {
@@ -162,7 +162,9 @@ const Nav: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
           style={customStyles}
           contentLabel="Example Modal"
       >
-          <button onClick={() => setIsModalOpen(false)}>X</button>
+        <Flex>
+          <ButtonIco style={{marginLeft: 'auto'}} onClick={() => setIsModalOpen(false)}>&#x2715;</ButtonIco>
+        </Flex>
         <Dashboard Arts={Arts} Config={Config}/>
       </Modal>
       <InputType ref={inputRef} type="text" />
