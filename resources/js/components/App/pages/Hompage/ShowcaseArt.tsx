@@ -148,7 +148,7 @@ const ShowcaseArt: React.FC<{Arts: Art[]}> = ({Arts}) => {
         setCurrImg(Arts[activeIndex].img)
       }
 
-      setDelayMS(delayC ? 400 : 3000);
+      setDelayMS(delayC ? 500 : 3500);
     },
     exitBeforeEnter: true,
     delay: delayMS,
