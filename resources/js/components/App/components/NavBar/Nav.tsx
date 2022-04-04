@@ -118,7 +118,7 @@ const Nav: React.FC<{Arts: Art[], Config: Config}> = ({Arts, Config}) => {
   // let subtitle;
   const [isLogoPressed, setIsLogoPressed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null!);
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (isLogoPressed) {
