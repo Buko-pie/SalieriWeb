@@ -24,7 +24,6 @@ class Kernel extends HttpKernel
     \App\Http\Middleware\CacheControl::class,
 
     // appending custom middleware
-    \App\Http\Middleware\HttpsProtocol::class,
   ];
 
   /**
